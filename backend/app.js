@@ -4,6 +4,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const multer = require('multer');
+const { v4: uuidv4 } = require('uuid');
 
 const feedRoutes = require('./routes/feed');
 const authRoutes = require('./routes/auth');
@@ -11,11 +12,11 @@ const authRoutes = require('./routes/auth');
 const app = express();
 
 const fileStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'images');
+  destination: function(req, file, cb) {
+      cb(null, 'images');
   },
-  filename: (req, file, cb) => {
-    cb(null, new Date().toISOString() + '-' + file.originalname);
+  filename: function(req, file, cb) {
+      cb(null, uuidv4())
   }
 });
 
@@ -61,7 +62,8 @@ app.use((error, req, res, next) => {
 
 mongoose
   .connect(
-    'mongodb+srv://testuser1:jZGk5M0wcYdyBLPm@doha.xxxt8fwd.mongodb.net/messages?retryWrites=true'
+    'mongodb+srv://testuser1:jZGk5M0wcYdyBLPm@doha.xxxt8fwd.mongodb.net/messages?retryWrites=true' ,
+    { useNewUrlParser : true }
   )
   .then(result => {
     app.listen(8080);
