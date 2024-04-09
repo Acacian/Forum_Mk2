@@ -42,4 +42,7 @@ router.put(
 
 router.delete('/post/:postId', isAuth, feedController.deletePost);
 
+//find the post by title
+router.get('/post/:postId', isAuth, feedController.findPost);
+
 module.exports = router;
