@@ -31,7 +31,7 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// app.use(bodyParser.urlencoded()); // x-www-form-urlencoded <form>
+// app.use(bodyParser.urlencoded()); // x-www-form-urlencoded <form> 기존에는 이 형식으로 받았으나, 이제는 json형식으로 받기 때문에 필요없음.
 app.use(bodyParser.json()); // application/json
 app.use(
   multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')
@@ -61,7 +61,7 @@ app.use((error, req, res, next) => {
 
 mongoose
   .connect(
-    'mongodb+srv://maximilian:9u4biljMQc4jjqbe@cluster0-ntrwp.mongodb.net/messages?retryWrites=true'
+    'mongodb+srv://testuser1:jZGk5M0wcYdyBLPm@doha.xxxt8fwd.mongodb.net/messages?retryWrites=true'
   )
   .then(result => {
     app.listen(8080);
