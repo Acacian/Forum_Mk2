@@ -4,19 +4,19 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const multer = require('multer');
-const { v4: uuidv4 } = require('uuid');
 
 const feedRoutes = require('./routes/feed');
 const authRoutes = require('./routes/auth');
 
 const app = express();
 
+const { v4: uuidv4 } = require('uuid');
 const fileStorage = multer.diskStorage({
-  destination: function(req, file, cb) {
-      cb(null, 'images');
+  destination: (req, file, cb) => {
+    cb(null, 'images');
   },
   filename: function(req, file, cb) {
-      cb(null, uuidv4())
+    cb(null, uuidv4());
   }
 });
 
@@ -32,7 +32,7 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// app.use(bodyParser.urlencoded()); // x-www-form-urlencoded <form> 기존에는 이 형식으로 받았으나, 이제는 json형식으로 받기 때문에 필요없음.
+// app.use(bodyParser.urlencoded()); // x-www-form-urlencoded <form>
 app.use(bodyParser.json()); // application/json
 app.use(
   multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')
@@ -62,10 +62,14 @@ app.use((error, req, res, next) => {
 
 mongoose
   .connect(
-    'mongodb+srv://testuser1:jZGk5M0wcYdyBLPm@doha.xxxt8fwd.mongodb.net/messages?retryWrites=true' ,
-    { useNewUrlParser : true }
+    'mongodb+srv://testuser1:jZGk5M0wcYdyBLPm@doha.xxt8fwd.mongodb.net/messages?retryWrites=true' ,
+    { useNewUrlParser : true },
   )
   .then(result => {
-    app.listen(8080);
+    const server = app.listen(8080);
+    const io = require('./socket').init(server);
+    io.on('connection', socket => {
+      console.log('Client connected');
+    });
   })
   .catch(err => console.log(err));
