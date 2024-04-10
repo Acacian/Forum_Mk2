@@ -180,15 +180,32 @@ const clearImage = filePath => {
 
 //find the post by title
 exports.findPost = async (req, res, next) => {
-  const title = req.body.title;
+  const title = req.params.title;
   try {
-    const post = await Post.find({ title: title });
+    // find all posts with the title
+    const post = await Post.find({title: title});
+    // calculate size of posts
+    const size = post.length;
+    // get the posts
+    console.log(post[0]);
+    console.log(post[0].title);
+    console.log(post[0].content);
     if (!post) {
       const error = new Error('Could not find post.');
       error.statusCode = 404;
       throw error;
     }
-    res.status(200).json({ message: 'Post fetched.', post: post});
+    if (post[0].title !== title) {
+      const error = new Error('Finding Title Error.');
+      console.log(title , post[0].title);
+      error.statusCode = 404;
+      throw error;
+    }
+    if (size > 1) {
+      res.status(200).json({ message: 'Found '+size+' Posts'});
+    }else{
+    res.status(200).json({ message: 'Find Post.', post: post[0]});
+    }
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
