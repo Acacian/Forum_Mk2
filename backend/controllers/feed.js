@@ -155,7 +155,8 @@ exports.deletePost = async (req, res, next) => {
       error.statusCode = 403;
       throw error;
     }
-    // Check logged in user
+
+    //Check logged in user
     clearImage(post.imageUrl);
     await Post.findByIdAndRemove(postId);
 
@@ -180,14 +181,14 @@ const clearImage = filePath => {
 //find the post by title
 exports.findPost = async (req, res, next) => {
   const title = req.body.title;
-  const post = await Post.findOne().where('title').equals(title); // 제목이 title인 post를 찾는다.
   try {
+    const post = await Post.find({ title: title });
     if (!post) {
       const error = new Error('Could not find post.');
       error.statusCode = 404;
       throw error;
     }
-    res.status(200).json({ message: 'Post fetched.', post: post });
+    res.status(200).json({ message: 'Post fetched.', post: post});
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
