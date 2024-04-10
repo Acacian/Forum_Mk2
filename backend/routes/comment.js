@@ -8,7 +8,7 @@ const router = express.Router();
 
 // 댓글 생성
 router.post(
-  '/:postId/comment',
+  '/:postId',
   isAuth,
   [
     body('comment')
