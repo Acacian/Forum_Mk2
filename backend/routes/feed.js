@@ -32,10 +32,10 @@ router.put(
   [
     body('title')
       .trim()
-      .isLength({ min: 5 }),
+      .isLength({ min: 2 }),
     body('content')
       .trim()
-      .isLength({ min: 5 })
+      .isLength({ min: 2 })
   ],
   feedController.updatePost
 );
@@ -43,6 +43,6 @@ router.put(
 router.delete('/post/:postId', isAuth, feedController.deletePost);
 
 //find the post by title
-router.get('/post/:postId', isAuth, feedController.findPost);
+router.get('/post/:title', feedController.findPost);
 
 module.exports = router;

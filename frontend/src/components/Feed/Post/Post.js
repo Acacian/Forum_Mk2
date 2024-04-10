@@ -7,7 +7,7 @@ const post = props => (
   <article className="post">
     <header className="post__header">
       <h3 className="post__meta">
-        Posted by {props.author} on {props.date}
+        작성자 : {props.author} 게시일: {props.date}
       </h3>
       <h1 className="post__title">{props.title}</h1>
     </header>
@@ -17,13 +17,13 @@ const post = props => (
     <div className="post__content">{props.content}</div> */}
     <div className="post__actions">
       <Button mode="flat" link={props.id}>
-        View
+        자세히보기
       </Button>
       <Button mode="flat" onClick={props.onStartEdit}>
-        Edit
+        편집하기
       </Button>
       <Button mode="flat" design="danger" onClick={props.onDelete}>
-        Delete
+        삭제하기
       </Button>
     </div>
   </article>

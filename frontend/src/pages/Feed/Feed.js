@@ -280,13 +280,13 @@ class Feed extends Component {
               value={this.state.status}
             />
             <Button mode="flat" type="submit">
-              Update
+              상태 편집
             </Button>
           </form>
         </section>
         <section className="feed__control">
           <Button mode="raised" design="accent" onClick={this.newPostHandler}>
-            New Post
+            포스트 작성하기
           </Button>
         </section>
         <section className="feed">

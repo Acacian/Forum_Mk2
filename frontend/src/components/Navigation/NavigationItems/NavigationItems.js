@@ -4,9 +4,9 @@ import { NavLink } from 'react-router-dom';
 import './NavigationItems.css';
 
 const navItems = [
-  { id: 'feed', text: 'Feed', link: '/', auth: true },
-  { id: 'login', text: 'Login', link: '/', auth: false },
-  { id: 'signup', text: 'Signup', link: '/signup', auth: false }
+  { id: 'feed', text: '게시물', link: '/', auth: true },
+  { id: 'login', text: '로그인', link: '/', auth: false },
+  { id: 'signup', text: '회원가입', link: '/signup', auth: false }
 ];
 
 const navigationItems = props => [
@@ -22,9 +22,16 @@ const navigationItems = props => [
   )),
   props.isAuth && (
     <li className="navigation-item" key="logout">
-      <button onClick={props.onLogout}>Logout</button>
+      <button onClick={props.onLogout}>로그아웃</button>
     </li>
-  )
+  ),
+  // 미구현
+  // props.isAuth && (
+  //   <li className="navigation-item" key="findpost">
+  //     <input onChange={onChange} value ={text} />
+  //     <button> *게시글 찾기</button>
+  //   </li>
+  // )
 ];
 
 export default navigationItems;

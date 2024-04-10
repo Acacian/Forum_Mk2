@@ -179,23 +179,8 @@ const clearImage = filePath => {
 
 //find the post by title
 exports.findPost = async (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    const error = new Error('Validation failed, entered data is incorrect.');
-    error.statusCode = 422;
-    throw error;
-  }
-  if (!req.file) {
-    const error = new Error('No image provided.');
-    error.statusCode = 422;
-    throw error;
-  }
-  //에러처리 끝
-  //find the post by title
   const title = req.body.title;
-  const post = await io.getIO().find('posts', {
-    title: title
-  }); 
+  const post = await Post.findOne().where('title').equals(title); // 제목이 title인 post를 찾는다.
   try {
     if (!post) {
       const error = new Error('Could not find post.');
