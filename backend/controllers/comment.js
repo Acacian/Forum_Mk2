@@ -74,6 +74,7 @@ exports.updateComment = async (req, res, next) => {
 };
 
 //delete comments
+//comment doesn't have any image so we don't need to delete image, just delete comment and unlink it from post
 exports.deleteComment = async (req, res, next) => {
   const commentId = req.params.commentId;
   try {
@@ -88,7 +89,7 @@ exports.deleteComment = async (req, res, next) => {
       error.statusCode = 403;
       throw error;
     }
-    clearImage(comment1.imageUrl);
+    fs.unlink(comment1.comment, err => console.log(err));
     await Comment
         .findByIdAndRemove(commentId);
     const post = await Post.findById(comment1.post);

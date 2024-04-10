@@ -27,7 +27,7 @@ router.put(
       .trim()
       .isLength({ min: 1 })
   ],
-  feedController.updateComment
+  commentController.updateComment
 );
 
 router.delete('/:postId/:commentId', isAuth, commentController.deleteComment);
