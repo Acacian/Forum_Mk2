@@ -44,3 +44,62 @@ exports.createComment = async (req, res, next) => {
     next(err);
   }
 };
+
+//edit comments
+exports.updateComment = async (req, res, next) => {
+  const commentId = req.params.commentId;
+  const comment = req.body.comment;
+  try {
+    const comment1 = await Comment.findById(commentId).populate('post');
+    if (!comment1) {
+      const error = new Error('Could not find comment.');
+      error.statusCode = 404;
+      throw error;
+    }
+    if (comment1.user_name.toString() !== req.userId) {
+      const error = new Error('Not authorized!');
+      error.statusCode = 403;
+      throw error;
+    }
+    comment1.comment = comment;
+    const result = await comment1.save();
+    io.getIO().emit('comments', { action: 'update', comment: result });
+    res.status(200).json({ message: 'Comment updated!', comment: result });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+//delete comments
+exports.deleteComment = async (req, res, next) => {
+  const commentId = req.params.commentId;
+  try {
+    const comment1 = await Comment.findById(commentId);
+    if (!comment1) {
+      const error = new Error('Could not find comment.');
+      error.statusCode = 404;
+      throw error;
+    }
+    if (comment1.user_name.toString() !== req.userId) {
+      const error = new Error('Not authorized!');
+      error.statusCode = 403;
+      throw error;
+    }
+    clearImage(comment1.imageUrl);
+    await Comment
+        .findByIdAndRemove(commentId);
+    const post = await Post.findById(comment1.post);
+    post.comments.pull(commentId);
+    await post.save();
+    io.getIO().emit('comments', { action: 'delete', comment: commentId });
+    res.status(200).json({ message: 'Deleted comment.' });
+    } catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+        }
+}

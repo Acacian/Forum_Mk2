@@ -1,45 +1,35 @@
 const express = require('express');
 const { body } = require('express-validator/check');
 
-const feedController = require('../controllers/comment');
+const commentController = require('../controllers/comment');
 const isAuth = require('../middleware/is-auth');
 
 const router = express.Router();
 
-// POST /comment/post   
+// 댓글 생성
 router.post(
   '/:postId/comment',
   isAuth,
   [
-    body('title')
+    body('comment')
       .trim()
-      .isLength({ min: 5 }),
-    body('content')
-      .trim()
-      .isLength({ min: 5 })
+      .isLength({ min: 1 })
   ],
-  feedController.createPost
+  commentController.createComment
 );
 
-router.get('/post/:postId', isAuth, feedController.getPost);
-
+// 댓글 수정
 router.put(
-  '/post/:postId',
+  '/:postId/:commentId',
   isAuth,
   [
-    body('title')
+    body('comment')
       .trim()
-      .isLength({ min: 2 }),
-    body('content')
-      .trim()
-      .isLength({ min: 2 })
+      .isLength({ min: 1 })
   ],
-  feedController.updatePost
+  feedController.updateComment
 );
 
-router.delete('/post/:postId', isAuth, feedController.deletePost);
-
-//find the post by title
-router.get('/post/find/:title', isAuth, feedController.findPost);
+router.delete('/:postId/:commentId', isAuth, commentController.deleteComment);
 
 module.exports = router;
