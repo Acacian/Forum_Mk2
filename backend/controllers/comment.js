@@ -1,5 +1,4 @@
 const fs = require('fs');
-const path = require('path');
 
 const { validationResult } = require('express-validator/check');
 
@@ -9,6 +8,7 @@ const User = require('../models/user');
 const Comment = require('../models/comment');
 
 //add comments into posts
+//use schema in comment.js
 exports.createComment = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -18,24 +18,25 @@ exports.createComment = async (req, res, next) => {
   }
   const comment = req.body.comment;
   const postId = req.params.postId;
-  let creator;
-  const post = await Post.findById(postId);
+  const creator = await User.findById(req.userId);
   const comment1 = new Comment({
     comment: comment,
-    user_name: req.userId
+    user_name: creator.name,
+    original_post: postId
   });
   try {
+    // db에 저장
     await comment1.save();
-    post.comments.push(comment1);
-    await post.save();
+    // socket을 써서 실시간으로 댓글을 보여줌
     io.getIO().emit('comments', {
       action: 'create',
-      comment: { ...comment1._doc, user_name: req.userId }
+      comment: { ...comment1._doc }
     });
     res.status(201).json({
       message: 'Comment created successfully!',
-      comment: comment1,
-      creator: { _id: creator._id, name: creator.name }
+      post_id : comment1.original_post,
+      user_name : comment1.user_name,
+      comment: comment1.comment
     });
   } catch (err) {
     if (!err.statusCode) {

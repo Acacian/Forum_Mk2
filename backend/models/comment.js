@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const commentSchema = new Schema({
   user_name: {
-    type: Schema.Types.ObjectId,
+    type: String,
     ref: 'User',
     required: true
   },
@@ -11,12 +11,10 @@ const commentSchema = new Schema({
     type: String,
     required: true
   },
-  in_comments: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'Post'
-    }
-  ]
+  original_post: {
+    type: Schema.Types.ObjectId,
+    ref: 'Post',
+  }
 });
 
 module.exports = mongoose.model('Comment', commentSchema);

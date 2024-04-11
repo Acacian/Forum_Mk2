@@ -15,10 +15,16 @@ const postSchema = new Schema(
       type: String,
       required: true
     },
+    // creator id to get user info
     creator: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true
+    },
+    // comment id to get all comments
+    comments: {
+      type: Schema.Types.ObjectId,
+      ref: 'Comment'
     }
   },
   { timestamps: true }
