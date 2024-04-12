@@ -6,6 +6,7 @@ const { validationResult } = require('express-validator/check');
 const io = require('../socket');
 const Post = require('../models/post');
 const User = require('../models/user');
+const Comment = require('../models/comment');
 
 exports.getPosts = async (req, res, next) => {
   const currentPage = req.query.page || 1;
@@ -160,6 +161,17 @@ exports.deletePost = async (req, res, next) => {
     clearImage(post.imageUrl);
     await Post.findByIdAndRemove(postId);
 
+    // delete comments which are linked to the post
+    const comments = await Comment.find({original_post : postId});
+    for (let i = 0; i < comments.length; i++) {
+      await Comment.findByIdAndRemove(comments[i]._id);
+      if (!comments[i]) { //예외처리
+        const error = new Error('Could not find comment.');
+        error.statusCode = 404;
+        throw error;
+      }
+    }
+
     const user = await User.findById(req.userId);
     user.posts.pull(postId);
     await user.save();
@@ -188,25 +200,23 @@ exports.findPost = async (req, res, next) => {
     // calculate size of posts
     const size = post.length;
     // get the posts
-    console.log(post[0]);
-    console.log(post[0].title);
-    console.log(post[0].content);
-    if (!post) {
-      const error = new Error('Could not find post.');
-      error.statusCode = 404;
-      throw error;
+    for (let i = 0; i < size; i++) {
+      if (!post[i]) {
+        const error = new Error('Could not find post.');
+        error.statusCode = 404;
+        throw error;
+      }
+      if (post[i].title !== title) {
+        const error = new Error('Finding Title Error.');
+        console.log(title , post[i].title);
+        error.statusCode = 404;
+        throw error;
+      }
     }
-    if (post[0].title !== title) {
-      const error = new Error('Finding Title Error.');
-      console.log(title , post[0].title);
-      error.statusCode = 404;
-      throw error;
-    }
-    if (size > 1) {
-      res.status(200).json({ message: 'Found '+size+' Posts'});
-    }else{
-    res.status(200).json({ message: 'Find Post.', post: post[0]});
-    }
+    // we can't get multiple answer in one api, so we must gathering arrangement posts in one variable
+    res.status(200).json(
+      { message: 'Find Post.', post: post}
+    );
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;

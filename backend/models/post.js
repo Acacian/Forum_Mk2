@@ -22,7 +22,7 @@ const postSchema = new Schema(
       required: true
     },
     // comment id to get all comments
-    comments: {
+    comment: {
       type: Schema.Types.ObjectId,
       ref: 'Comment'
     }

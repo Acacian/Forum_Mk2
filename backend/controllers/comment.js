@@ -28,7 +28,7 @@ exports.createComment = async (req, res, next) => {
     // db에 저장
     await comment1.save();
     // socket을 써서 실시간으로 댓글을 보여줌
-    io.getIO().emit('comments', {
+    io.getIO().emit('comment', {
       action: 'create',
       comment: { ...comment1._doc }
     });
@@ -51,7 +51,8 @@ exports.updateComment = async (req, res, next) => {
   const commentId = req.params.commentId;
   const comment = req.body.comment;
   try {
-    const comment1 = await Comment.findById(commentId).populate('post');
+    const comment1 = await Comment
+        .findById(commentId);
     if (!comment1) {
       const error = new Error('Could not find comment.');
       error.statusCode = 404;
@@ -64,9 +65,10 @@ exports.updateComment = async (req, res, next) => {
     }
     comment1.comment = comment;
     const result = await comment1.save();
-    io.getIO().emit('comments', { action: 'update', comment: result });
+    io.getIO().emit('comment', { action: 'update', comment: result });
     res.status(200).json({ message: 'Comment updated!', comment: result });
-  } catch (err) {
+  }
+  catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
     }
@@ -94,9 +96,9 @@ exports.deleteComment = async (req, res, next) => {
     await Comment
         .findByIdAndRemove(commentId);
     const post = await Post.findById(comment1.post);
-    post.comments.pull(commentId);
+    post.comment.pull(commentId);
     await post.save();
-    io.getIO().emit('comments', { action: 'delete', comment: commentId });
+    io.getIO().emit('comment', { action: 'delete', comment: commentId });
     res.status(200).json({ message: 'Deleted comment.' });
     } catch (err) {
         if (!err.statusCode) {
