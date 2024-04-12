@@ -50,6 +50,8 @@ exports.createComment = async (req, res, next) => {
 exports.updateComment = async (req, res, next) => {
   const commentId = req.params.commentId;
   const comment = req.body.comment;
+  // find user's id to check user's name
+  const user = await User.findById(req.userId);
   try {
     const comment1 = await Comment
         .findById(commentId);
@@ -58,8 +60,10 @@ exports.updateComment = async (req, res, next) => {
       error.statusCode = 404;
       throw error;
     }
-    if (comment1.user_name.toString() !== req.userId) {
+    if (comment1.user_name.toString() !== user.name) {
       const error = new Error('Not authorized!');
+      console.log(comment1.user_name.toString());
+      console.log(user.name);
       error.statusCode = 403;
       throw error;
     }
@@ -80,6 +84,7 @@ exports.updateComment = async (req, res, next) => {
 //comment doesn't have any image so we don't need to delete image, just delete comment and unlink it from post
 exports.deleteComment = async (req, res, next) => {
   const commentId = req.params.commentId;
+  const user = await User.findById(req.userId);
   try {
     const comment1 = await Comment.findById(commentId);
     if (!comment1) {
@@ -87,7 +92,7 @@ exports.deleteComment = async (req, res, next) => {
       error.statusCode = 404;
       throw error;
     }
-    if (comment1.user_name.toString() !== req.userId) {
+    if (comment1.user_name.toString() !== user.name) {
       const error = new Error('Not authorized!');
       error.statusCode = 403;
       throw error;
@@ -95,9 +100,7 @@ exports.deleteComment = async (req, res, next) => {
     fs.unlink(comment1.comment, err => console.log(err));
     await Comment
         .findByIdAndRemove(commentId);
-    const post = await Post.findById(comment1.post);
-    post.comment.pull(commentId);
-    await post.save();
+
     io.getIO().emit('comment', { action: 'delete', comment: commentId });
     res.status(200).json({ message: 'Deleted comment.' });
     } catch (err) {
