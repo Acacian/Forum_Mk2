@@ -30,7 +30,6 @@ const postSchema = new Schema(
     notice: {
       type: Boolean,
       default: false,
-      required: false
     }
   },
   { timestamps: true }

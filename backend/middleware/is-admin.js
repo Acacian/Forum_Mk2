@@ -4,8 +4,6 @@ module.exports = async (req, res, next) => {
     //check login user is admin
     try{
         const user = await User.findById(req.userId);
-        console.log(user)
-
         if(!user){
             const error = new Error('User not found.');
             error.statusCode = 404;

@@ -47,12 +47,18 @@ exports.createPost = async (req, res, next) => {
   const imageUrl = req.file.path.replace("\\" ,"/");
   const title = req.body.title;
   const content = req.body.content;
+  // if admin is true, notice post
+  const admin = req.body.admin;
   const post = new Post({
     title: title,
     content: content,
     imageUrl: imageUrl,
     creator: req.userId
   });
+  if (admin === 'true') {
+    post.notice = true;
+  }
+
   try {
     await post.save();
     const user = await User.findById(req.userId);

@@ -3,6 +3,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
+const Post = require('../models/post');
+const Comment = require('../models/comment');
 
 exports.signup = async (req, res, next) => {
   const errors = validationResult(req);
@@ -119,7 +121,30 @@ exports.quit = async (req, res, next) => {
       error.statusCode = 403;
       throw error;
     }
+    if (req.body.userId === req.userId) {
+      const error = new Error('Cant erase yourself.');
+      error.statusCode = 403;
+      throw error;
+    }
+    const deluser = await User.findById(req.body.userId);
+    if (!deluser) {
+      const error = new Error('User not found.');
+      error.statusCode = 404;
+      throw error;
+    }
+    // delete all posts before deleting user
+    const delposts = await Post.find({ creator: req.body.userId });
+    for (let i = 0; i < delposts.length; i++) {
+      await Post.findByIdAndRemove(delposts[i]._id);
+    }
+    // delete all comments before deleting user
+    const delcomments = await Comment.find({ creator: req.body.userId });
+    for (let i = 0; i < delcomments.length; i++) {
+      await Comment.findByIdAndRemove(delcomments[i]._id);
+    }
+
     await User.findByIdAndRemove(req.body.userId);
+    // delete all posts which are linked to the user
     res.status(200).json({ message: 'User deleted.' });
   }
   catch (err) {
