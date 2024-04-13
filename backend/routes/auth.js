@@ -48,4 +48,16 @@ router.patch(
   authController.updateUserStatus
 );
 
+router.delete(
+  '/quit',
+  isAuth,
+  [
+    body('userId')
+      .trim()
+      .not()
+      .isEmpty()
+  ],
+  authController.quit
+);
+
 module.exports = router;

@@ -105,34 +105,24 @@ exports.updateUserStatus = async (req, res, next) => {
   }
 };
 
-exports.login = async (req, res, next) => {
-  const email = req.body.email;
-  const password = req.body.password;
-  let loadedUser;
+exports.quit = async (req, res, next) => {
+  // check admin, and if admin, delete one users which is not admin. find by id to delete user
   try {
-    const user = await User.findOne({ email: email });
+    const user = await User.findById(req.userId);
     if (!user) {
-      const error = new Error('A user with this email could not be found.');
-      error.statusCode = 401;
+      const error = new Error('User not found.');
+      error.statusCode = 404;
       throw error;
     }
-    loadedUser = user;
-    const isEqual = await bcrypt.compare(password, user.password);
-    if (!isEqual) {
-      const error = new Error('Wrong password!');
-      error.statusCode = 401;
+    if (user.admin === false) {
+      const error = new Error('Not authorized!');
+      error.statusCode = 403;
       throw error;
     }
-    const token = jwt.sign(
-      {
-        email: loadedUser.email,
-        userId: loadedUser._id.toString()
-      },
-      'somesupersecretsecret',
-      { expiresIn: '24h' }
-    );
-    res.status(200).json({ token: token, userId: loadedUser._id.toString() });
-  } catch (err) {
+    await User.findByIdAndRemove(req.body.userId);
+    res.status(200).json({ message: 'User deleted.' });
+  }
+  catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
     }
