@@ -25,6 +25,12 @@ const postSchema = new Schema(
     comment: {
       type: Schema.Types.ObjectId,
       ref: 'Comment'
+    },
+    // make notice post
+    notice: {
+      type: Boolean,
+      default: false,
+      required: false
     }
   },
   { timestamps: true }

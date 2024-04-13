@@ -4,6 +4,7 @@ const { body } = require('express-validator/check');
 const User = require('../models/user');
 const authController = require('../controllers/auth');
 const isAuth = require('../middleware/is-auth');
+const isAdmin = require('../middleware/is-admin');
 
 const router = express.Router();
 
@@ -51,6 +52,7 @@ router.patch(
 router.delete(
   '/quit',
   isAuth,
+  isAdmin,
   [
     body('userId')
       .trim()

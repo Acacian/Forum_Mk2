@@ -114,8 +114,8 @@ exports.quit = async (req, res, next) => {
       error.statusCode = 404;
       throw error;
     }
-    if (user.admin === false) {
-      const error = new Error('Not authorized!');
+    if (!user.admin) {
+      const error = new Error('Cant erase admin.');
       error.statusCode = 403;
       throw error;
     }
@@ -124,6 +124,7 @@ exports.quit = async (req, res, next) => {
   }
   catch (err) {
     if (!err.statusCode) {
+      console.log("here is error")
       err.statusCode = 500;
     }
     next(err);
