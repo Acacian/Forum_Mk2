@@ -48,14 +48,17 @@ exports.createPost = async (req, res, next) => {
   const title = req.body.title;
   const content = req.body.content;
   // if admin is true, notice post
-  const admin = req.body.admin;
+  const user = await User.findById(req.userId);
+  const admin = user.admin;
+  console.log("admin status");
+  console.log(admin);
   const post = new Post({
     title: title,
     content: content,
     imageUrl: imageUrl,
     creator: req.userId
   });
-  if (admin === 'true') {
+  if (admin === true) {
     post.notice = true;
   }
 
@@ -166,6 +169,7 @@ exports.deletePost = async (req, res, next) => {
     //Check logged in user
     clearImage(post.imageUrl);
     await Post.findByIdAndRemove(postId);
+    
 
     // delete comments which are linked to the post
     const comments = await Comment.find({original_post : postId});
@@ -181,6 +185,11 @@ exports.deletePost = async (req, res, next) => {
     const user = await User.findById(req.userId);
     user.posts.pull(postId);
     await user.save();
+
+    // find user who is creator of the post, and delete the post from the user(array of posts)
+    const creator = await User.findById(post.creator);
+    creator.posts.pull(postId);
+    await creator.save();
 
     io.getIO().emit('posts', { action: 'delete', post: postId });
     res.status(200).json({ message: 'Deleted post.' });
