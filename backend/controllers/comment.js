@@ -30,7 +30,7 @@ exports.createComment = async (req, res, next) => {
     // socket을 써서 실시간으로 댓글을 보여줌
     io.getIO().emit('comment', {
       action: 'create',
-      comment: { ...comment1._doc }
+      comment: { ...comment1._doc, creator: { _id: req.userId, name: creator.name } }
     });
     res.status(201).json({
       message: 'Comment created successfully!',
