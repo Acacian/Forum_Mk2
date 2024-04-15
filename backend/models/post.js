@@ -21,11 +21,6 @@ const postSchema = new Schema(
       ref: 'User',
       required: true
     },
-    // comment id to get all comments
-    comment: {
-      type: Schema.Types.ObjectId,
-      ref: 'Comment'
-    },
     // make notice post
     notice: {
       type: Boolean,

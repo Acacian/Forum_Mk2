@@ -13,8 +13,9 @@ class SinglePost extends Component {
     comment: ''
   };
 
-  componentDidMount() {
+  async componentDidMount() {
     const postId = this.props.match.params.postId;
+    // const comments = await Comment.find({original_post : postId});
     fetch('http://localhost:8080/feed/post/' + postId, {
       headers: {
         Authorization: 'Bearer ' + this.props.token
@@ -32,7 +33,7 @@ class SinglePost extends Component {
           author: resData.post.creator.name,
           image: 'http://localhost:8080/' + resData.post.imageUrl,
           date: new Date(resData.post.createdAt).toLocaleDateString('en-US'),
-          content: resData.post.content
+          content: resData.post.content,
         });
       })
       .catch(err => {

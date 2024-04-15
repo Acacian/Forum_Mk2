@@ -56,7 +56,7 @@ exports.createPost = async (req, res, next) => {
     title: title,
     content: content,
     imageUrl: imageUrl,
-    creator: req.userId
+    creator: req.userId,
   });
   if (admin === true) {
     post.notice = true;
@@ -181,10 +181,6 @@ exports.deletePost = async (req, res, next) => {
         throw error;
       }
     }
-
-    const user = await User.findById(req.userId);
-    user.posts.pull(postId);
-    await user.save();
 
     // find user who is creator of the post, and delete the post from the user(array of posts)
     const creator = await User.findById(post.creator);
