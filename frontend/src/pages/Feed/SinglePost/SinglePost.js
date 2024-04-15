@@ -60,30 +60,75 @@ class SinglePost extends Component {
             };
           })
         });
-        console.log(this.state.comment[0].comment);
       })
       .catch(err => {
         console.log(err);
       });
-
-      const socket = openSocket('http://localhost:8080');
-      socket.on('comment', data => {
-        this.addComment(data.comment);
-      });
+    // const socket = openSocket('http://localhost:8080');
+    // socket.on('comments', data => {
+    //   if (data.action === 'create') {
+    //     this.addPost(data.post);
+    //   } else if (data.action === 'update') {
+    //     this.updatePost(data.post);
+    //   } else if (data.action === 'delete') {
+    //     this.loadPosts();
+    //   }
+    // });
   }
 
   addComment = post => {
     this.setState(prevState => {
-      const updatedComments = [...prevState.comments];
-      // if we have 6 comments, remove the last one
-      if (prevState.comments.length >= 6) {
-        updatedComments.pop();
+      const updatedPosts = [...prevState.posts];
+      if (prevState.postPage === 1) {
+        if (prevState.posts.length >= 2) {
+          updatedPosts.pop();
+        }
+        updatedPosts.unshift(post);
       }
-      updatedComments.unshift(post);
       return {
-        comments: updatedComments
+        posts: updatedPosts,
+        totalPosts: prevState.totalPosts + 1
       };
     });
+  };
+
+  loadComments = direction => {
+    if (direction) {
+      this.setState({ postsLoading: true, posts: [] });
+    }
+    let page = this.state.postPage;
+    if (direction === 'next') {
+      page++;
+      this.setState({ postPage: page });
+    }
+    if (direction === 'previous') {
+      page--;
+      this.setState({ postPage: page });
+    }
+    fetch('http://localhost:8080/feed/posts?page=' + page, {
+      headers: {
+        Authorization: 'Bearer ' + this.props.token
+      }
+    })
+      .then(res => {
+        if (res.status !== 200) {
+          throw new Error('Failed to fetch posts.');
+        }
+        return res.json();
+      })
+      .then(resData => {
+        this.setState({
+          posts: resData.posts.map(post => {
+            return {
+              ...post,
+              imagePath: post.imageUrl
+            };
+          }),
+          totalPosts: resData.totalItems,
+          postsLoading: false
+        });
+      })
+      .catch(this.catchError);
   };
 
   render() {
@@ -103,9 +148,13 @@ class SinglePost extends Component {
           </h2>
         </div>
         <div className="single-post__comment">
-          <h1>
-            {/* {this.state.comment[0].comment} */}
-          </h1>
+        {this.state.comment && this.state.comment.length > 0 ? (
+          this.state.comment.map((c, index) => (
+            <h4 key={index}>유저 이름 : {c.user_name} 댓글 : {c.comment}</h4>
+          ))
+        ) : (
+          <p>No comments yet.</p>
+        )}
           <form className="form">
             <div className="form-control">
               <label htmlFor="comment"></label>
