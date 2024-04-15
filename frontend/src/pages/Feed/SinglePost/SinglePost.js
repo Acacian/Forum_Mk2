@@ -9,7 +9,8 @@ class SinglePost extends Component {
     author: '',
     date: '',
     image: '',
-    content: ''
+    content: '',
+    comment: ''
   };
 
   componentDidMount() {
@@ -50,6 +51,23 @@ class SinglePost extends Component {
           <Image contain imageUrl={this.state.image} />
         </div>
         <p>{this.state.content}</p>
+        <div>
+          <h2>
+            실시간 댓글 Comment
+          </h2>
+        </div>
+        <div className="single-post__comment">
+          <h1>
+            {this.state.comment}
+          </h1>
+          <form className="form">
+            <div className="form-control">
+              <label htmlFor="comment"></label>
+              <textarea id="comment" rows="5"></textarea>
+            </div>
+            <button type="submit">댓글 등록하기</button>
+          </form>
+        </div>
       </section>
     );
   }

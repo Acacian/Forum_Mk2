@@ -23,3 +23,9 @@
     width: 40rem;
   }
 }
+
+.single-post__comment {
+  height: 20rem;
+  width: 20rem;
+  margin: 1rem auto;
+}
