@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 import Image from '../../../components/Image/Image';
 import './SinglePost.css';
+import openSocket from 'socket.io-client';
 
 class SinglePost extends Component {
   state = {
@@ -10,12 +11,11 @@ class SinglePost extends Component {
     date: '',
     image: '',
     content: '',
-    comment: ''
+    comment: [],
   };
 
-  async componentDidMount() {
+  componentDidMount() {
     const postId = this.props.match.params.postId;
-    // const comments = await Comment.find({original_post : postId});
     fetch('http://localhost:8080/feed/post/' + postId, {
       headers: {
         Authorization: 'Bearer ' + this.props.token
@@ -23,7 +23,7 @@ class SinglePost extends Component {
     })
       .then(res => {
         if (res.status !== 200) {
-          throw new Error('Failed to fetch status');
+          throw new Error('Failed to fetch post status');
         }
         return res.json();
       })
@@ -39,7 +39,52 @@ class SinglePost extends Component {
       .catch(err => {
         console.log(err);
       });
+    // fetch comments
+    fetch('http://localhost:8080/comment/' + postId, {
+      headers: {
+        Authorization: 'Bearer ' + this.props.token
+      }
+    })
+      .then(res => {
+        if (res.status !== 200) {
+          throw new Error('Failed to fetch comment status');
+        }
+        return res.json();
+      })
+      .then(resData => {
+        this.setState({
+          // save all resData.comment(which is array)'s data
+          comment: resData.comments?.map(comment => {
+            return {
+              ...comment
+            };
+          })
+        });
+        console.log(this.state.comment[0].comment);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+
+      const socket = openSocket('http://localhost:8080');
+      socket.on('comment', data => {
+        this.addComment(data.comment);
+      });
   }
+
+  addComment = post => {
+    this.setState(prevState => {
+      const updatedComments = [...prevState.comments];
+      // if we have 6 comments, remove the last one
+      if (prevState.comments.length >= 6) {
+        updatedComments.pop();
+      }
+      updatedComments.unshift(post);
+      return {
+        comments: updatedComments
+      };
+    });
+  };
 
   render() {
     return (
@@ -59,7 +104,7 @@ class SinglePost extends Component {
         </div>
         <div className="single-post__comment">
           <h1>
-            {this.state.comment}
+            {/* {this.state.comment[0].comment} */}
           </h1>
           <form className="form">
             <div className="form-control">

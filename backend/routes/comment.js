@@ -32,4 +32,6 @@ router.put(
 
 router.delete('/:postId/:commentId', isAuth, commentController.deleteComment);
 
+router.get('/:postId', isAuth, commentController.getComments)
+
 module.exports = router;

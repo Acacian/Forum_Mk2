@@ -9,6 +9,25 @@ const Comment = require('../models/comment');
 
 //add comments into posts
 //use schema in comment.js
+exports.getComments = async (req, res, next) => {
+  const postId = req.params.postId;
+  try {
+    const comments = await Comment
+        .find({ original_post: postId })
+        .sort({ createdAt: -1 });
+    res.status(200).json({
+      message: 'Fetched comments successfully.',
+      comments: comments
+    });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+
 exports.createComment = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -29,7 +48,6 @@ exports.createComment = async (req, res, next) => {
     await comment1.save();
     // socket을 써서 실시간으로 댓글을 보여줌
     io.getIO().emit('comment', {
-      action: 'create',
       comment: { ...comment1._doc, creator: { _id: req.userId, name: creator.name } }
     });
     res.status(201).json({
@@ -69,7 +87,6 @@ exports.updateComment = async (req, res, next) => {
     }
     comment1.comment = comment;
     const result = await comment1.save();
-    io.getIO().emit('comment', { action: 'update', comment: result });
     res.status(200).json({ message: 'Comment updated!', comment: result });
   }
   catch (err) {
@@ -101,7 +118,6 @@ exports.deleteComment = async (req, res, next) => {
     await Comment
         .findByIdAndRemove(commentId);
 
-    io.getIO().emit('comment', { action: 'delete', comment: commentId });
     res.status(200).json({ message: 'Deleted comment.' });
     } catch (err) {
         if (!err.statusCode) {
