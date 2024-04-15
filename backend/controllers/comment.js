@@ -119,7 +119,6 @@ exports.deleteComment = async (req, res, next) => {
     await Comment
         .findByIdAndRemove(commentId);
     // socket을 써서 실시간으로 댓글을 보여줌
-    io.getIO().emit('comment', { action: 'delete', comment: commentId });
     res.status(200).json({ message: 'Deleted comment.' });
     } catch (err) {
         if (!err.statusCode) {

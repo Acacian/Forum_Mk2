@@ -1,8 +1,9 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 
 import Image from '../../../components/Image/Image';
 import './SinglePost.css';
 import openSocket from 'socket.io-client';
+import Button from '../../../components/Button/Button';
 
 class SinglePost extends Component {
   state = {
@@ -11,7 +12,7 @@ class SinglePost extends Component {
     date: '',
     image: '',
     content: '',
-    comment: [],
+    comment: []
   };
 
   componentDidMount() {
@@ -64,106 +65,99 @@ class SinglePost extends Component {
       .catch(err => {
         console.log(err);
       });
-    // const socket = openSocket('http://localhost:8080');
-    // socket.on('comments', data => {
-    //   if (data.action === 'create') {
-    //     this.addPost(data.post);
-    //   } else if (data.action === 'update') {
-    //     this.updatePost(data.post);
-    //   } else if (data.action === 'delete') {
-    //     this.loadPosts();
-    //   }
-    // });
+    const socket = openSocket('http://localhost:8080');
+    socket.on('comments', data => {
+      if (data.action === 'create') {
+        this.addComment(data.comment);
+      }
+    });
   }
 
-  addComment = post => {
+  // 5개 넘으면 마지막꺼 지우고 새로운 댓글 추가
+  addComment = comment => {
     this.setState(prevState => {
       const updatedPosts = [...prevState.posts];
-      if (prevState.postPage === 1) {
-        if (prevState.posts.length >= 2) {
-          updatedPosts.pop();
-        }
-        updatedPosts.unshift(post);
+      if (prevState.comment.length > 4) {
+        updatedPosts.pop();
+        updatedPosts.unshift(comment);
       }
-      return {
-        posts: updatedPosts,
-        totalPosts: prevState.totalPosts + 1
-      };
     });
   };
 
-  loadComments = direction => {
-    if (direction) {
-      this.setState({ postsLoading: true, posts: [] });
-    }
-    let page = this.state.postPage;
-    if (direction === 'next') {
-      page++;
-      this.setState({ postPage: page });
-    }
-    if (direction === 'previous') {
-      page--;
-      this.setState({ postPage: page });
-    }
-    fetch('http://localhost:8080/feed/posts?page=' + page, {
+  // 댓글 등록하기
+  makeComment = () => {
+    const postId = this.props.match.params.postId;
+    const comment = document.getElementById('comment').value;
+    fetch('http://localhost:8080/comment/' + postId, {
+      method: 'POST',
       headers: {
-        Authorization: 'Bearer ' + this.props.token
-      }
+        Authorization: 'Bearer ' + this.props.token,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        comment: comment
+      })
     })
       .then(res => {
-        if (res.status !== 200) {
-          throw new Error('Failed to fetch posts.');
+        if (res.status !== 201) {
+          throw new Error('Failed to create comment');
         }
         return res.json();
       })
       .then(resData => {
+        console.log(resData);
         this.setState({
-          posts: resData.posts.map(post => {
-            return {
-              ...post,
-              imagePath: post.imageUrl
-            };
-          }),
-          totalPosts: resData.totalItems,
-          postsLoading: false
+          comment: [
+            ...this.state.comment,
+            {
+              user_name: resData.user_name,
+              comment: resData.comment
+            }
+          ]
         });
       })
-      .catch(this.catchError);
-  };
+      .catch(err => {
+        console.log(err);
+      });
+  }
+
 
   render() {
     return (
-      <section className="single-post">
-        <h1>{this.state.title}</h1>
-        <h2>
-          Created by {this.state.author} on {this.state.date}
-        </h2>
-        <div className="single-post__image">
-          <Image contain imageUrl={this.state.image} />
-        </div>
-        <p>{this.state.content}</p>
-        <div>
+      <Fragment>
+        <section className="single-post">
+          <h1>{this.state.title}</h1>
           <h2>
-            실시간 댓글 Comment
+            Created by {this.state.author} on {this.state.date}
           </h2>
-        </div>
-        <div className="single-post__comment">
-        {this.state.comment && this.state.comment.length > 0 ? (
-          this.state.comment.map((c, index) => (
-            <h4 key={index}>유저 이름 : {c.user_name} 댓글 : {c.comment}</h4>
-          ))
-        ) : (
-          <p>No comments yet.</p>
-        )}
-          <form className="form">
-            <div className="form-control">
-              <label htmlFor="comment"></label>
-              <textarea id="comment" rows="5"></textarea>
-            </div>
-            <button type="submit">댓글 등록하기</button>
-          </form>
-        </div>
-      </section>
+          <div className="single-post__image">
+            <Image contain imageUrl={this.state.image} />
+          </div>
+          <p>{this.state.content}</p>
+          <h2></h2>
+          <div>
+            <h2>
+              실시간 댓글 Comment
+            </h2>
+          </div>
+          <div className="single-post__comment">
+          {this.state.comment && this.state.comment.length > 0 ? (
+            this.state.comment.map((c, index) => (
+              <h4 key={index}>유저 이름 : {c.user_name} 댓글 : {c.comment}</h4>
+            ))
+          ) : (
+            <p>실시간 댓글이 없어요!</p>
+          )}
+            <form className="form">
+              <div className="form-control">
+                <label htmlFor="comment"></label>
+                <textarea id="comment" rows="5"></textarea>
+              </div>
+              <Button mode="hover" design="focus" onClick= {this.makeComment}>댓글 등록하기</Button>
+            </form>
+          </div>
+        </section>
+      </Fragment>
     );
   }
 }
