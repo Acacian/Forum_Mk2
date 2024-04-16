@@ -155,11 +155,6 @@ class SinglePost extends Component {
           </div>
           <p>{this.state.content}</p>
           <h2></h2>
-          <div>
-            <h2>
-              실시간 댓글 Comment
-            </h2>
-          </div>
           <div className="single-post__comment">
           {this.state.comment && this.state.comment.length > 0 ? (
             this.state.comment.map((c, index) => (
