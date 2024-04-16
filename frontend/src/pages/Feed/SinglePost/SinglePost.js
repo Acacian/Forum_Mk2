@@ -5,6 +5,13 @@ import './SinglePost.css';
 import openSocket from 'socket.io-client';
 import Button from '../../../components/Button/Button';
 
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+
+import FloatingLabel from 'react-bootstrap/FloatingLabel';
+import Form from 'react-bootstrap/Form';
+
 class SinglePost extends Component {
   state = {
     title: '',
@@ -148,24 +155,26 @@ class SinglePost extends Component {
           </div>
           <p>{this.state.content}</p>
           <h2></h2>
-          <div className="single-post__comment">
-          {this.state.comment && this.state.comment.length > 0 ? (
-            this.state.comment.map((c, index) => (
-              <div className='overflow-auto h-96'>
-                <h4 key={index}>{c.user_name} : {c.comment}</h4>
-              </div>
-            ))
-          ) : (
-            <p>실시간 댓글이 없어요!</p>
-          )}
-            <form className="form">
-              <div className="form-control">
-                <label htmlFor="comment"></label>
-                <textarea id="comment" rows="5"></textarea>
-              </div>
-              <Button mode="hover" design="focus" onClick= {this.makeComment}>댓글 등록하기</Button>
-            </form>
-          </div>
+          <Container>
+            <div className="single-post__comment">
+            {this.state.comment && this.state.comment.length > 0 ? (
+              this.state.comment.map((c, index) => (
+                <Row>
+                  <Col key={index}>{c.user_name} : {c.comment}</Col>
+                </Row>
+              ))
+            ) : (
+              <p>실시간 댓글이 없어요!</p>
+            )}
+              <form className="form">
+                <div className="form-control">
+                  <label htmlFor="comment"></label>
+                  <textarea id="comment" rows="5"></textarea>
+                </div>
+                <Button mode="hover" design="focus" onClick= {this.makeComment}>댓글 등록하기</Button>
+              </form>
+            </div>
+          </Container>
         </section>
       </Fragment>
     );
