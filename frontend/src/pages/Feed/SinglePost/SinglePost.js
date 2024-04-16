@@ -168,8 +168,15 @@ class SinglePost extends Component {
             )}
               <form className="form">
                 <div className="form-control">
-                  <label htmlFor="comment"></label>
-                  <textarea id="comment" rows="5"></textarea>
+                  <FloatingLabel htmlFor="comment">
+
+                  </FloatingLabel>
+                    <Form.Control
+                      as="textarea"
+                      id="comment"
+                      rows={3}
+                      placeholder="정글러들의 댓글을 실시간으로 남겨주세요!">
+                    </Form.Control>
                 </div>
                 <Button mode="hover" design="focus" onClick= {this.makeComment}>댓글 등록하기</Button>
               </form>
