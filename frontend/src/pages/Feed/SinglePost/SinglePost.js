@@ -146,7 +146,6 @@ class SinglePost extends Component {
       });
   }
 
-
   render() {
     const notify = () => toast("댓글이 등록되었어요!");
     return (
