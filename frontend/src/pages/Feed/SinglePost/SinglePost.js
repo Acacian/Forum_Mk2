@@ -65,8 +65,23 @@ class SinglePost extends Component {
       .catch(err => {
         console.log(err);
       });
+    fetch('http://localhost:8080/comment/' + this.props.match.params.postId, {
+      method: 'GET',
+      headers: {
+        Authorization: 'Bearer ' + this.props.token,
+      }
+    })
+    .then(res => res.json())
+    .then(resData => {
+      // Only take the first 6 comments
+      const comments = resData.comments.slice(-6);
+      this.setState({ comment: comments });
+    })
+    .catch(err => {console.log(err)});
+    
+    // socket
     const socket = openSocket('http://localhost:8080');
-    socket.on('comments', data => {
+    socket.on('comment', data => {
       if (data.action === 'create') {
         this.addComment(data.comment);
       }
@@ -75,17 +90,22 @@ class SinglePost extends Component {
 
   // 5개 넘으면 마지막꺼 지우고 새로운 댓글 추가
   addComment = comment => {
+    console.log(comment);
     this.setState(prevState => {
-      const updatedPosts = [...prevState.posts];
-      if (prevState.comment.length > 4) {
-        updatedPosts.pop();
-        updatedPosts.unshift(comment);
+      const updatedComments = [...prevState.comment];
+      if (prevState.comment.length > 5) {
+        updatedComments.shift();
       }
-    });
+      return {
+        comment: updatedComments
+      };
+    }
+    )
   };
 
   // 댓글 등록하기
-  makeComment = () => {
+  makeComment = event => {
+    event.preventDefault();
     const postId = this.props.match.params.postId;
     const comment = document.getElementById('comment').value;
     fetch('http://localhost:8080/comment/' + postId, {
@@ -105,16 +125,15 @@ class SinglePost extends Component {
         return res.json();
       })
       .then(resData => {
-        console.log(resData);
-        this.setState({
+        this.setState(prevState => ({
           comment: [
-            ...this.state.comment,
+            ...prevState.comment,
             {
               user_name: resData.user_name,
               comment: resData.comment
             }
           ]
-        });
+        }));
       })
       .catch(err => {
         console.log(err);
@@ -143,7 +162,9 @@ class SinglePost extends Component {
           <div className="single-post__comment">
           {this.state.comment && this.state.comment.length > 0 ? (
             this.state.comment.map((c, index) => (
-              <h4 key={index}>유저 이름 : {c.user_name} 댓글 : {c.comment}</h4>
+              <div className='overflow-auto h-96'>
+                <h4 key={index}>{c.user_name} : {c.comment}</h4>
+              </div>
             ))
           ) : (
             <p>실시간 댓글이 없어요!</p>
