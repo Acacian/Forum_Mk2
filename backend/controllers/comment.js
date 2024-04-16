@@ -41,7 +41,7 @@ exports.createComment = async (req, res, next) => {
   const comment1 = new Comment({
     comment: comment,
     user_name: creator.name,
-    original_post: postId
+    original_post: postId,
   });
   try {
     // db에 저장

@@ -4,7 +4,6 @@ import Image from '../../../components/Image/Image';
 import './SinglePost.css';
 import openSocket from 'socket.io-client';
 import Button from '../../../components/Button/Button';
-import 'bootstrap/dist/css/bootstrap.min.css';
 
 class SinglePost extends Component {
   state = {
@@ -81,12 +80,17 @@ class SinglePost extends Component {
     .catch(err => {console.log(err)});
     
     // socket
-    const socket = openSocket('http://localhost:8080');
-    socket.on('comment', data => {
+    this.socket = openSocket('http://localhost:8080');
+    this.socket.on('comment', data => {
       if (data.action === 'create') {
         this.addComment(data.comment);
       }
     });
+  }
+
+  componentWillUnmount() {
+    // disconnect the socket when the component is unmounted
+    this.socket.disconnect();
   }
 
   // 5개 넘으면 마지막꺼 지우고 새로운 댓글 추가
@@ -97,11 +101,11 @@ class SinglePost extends Component {
       if (prevState.comment.length > 5) {
         updatedComments.shift();
       }
+      updatedComments.push(comment);
       return {
         comment: updatedComments
       };
-    }
-    )
+    });
   };
 
   // 댓글 등록하기
@@ -124,17 +128,6 @@ class SinglePost extends Component {
           throw new Error('Failed to create comment');
         }
         return res.json();
-      })
-      .then(resData => {
-        this.setState(prevState => ({
-          comment: [
-            ...prevState.comment,
-            {
-              user_name: resData.user_name,
-              comment: resData.comment
-            }
-          ]
-        }));
       })
       .catch(err => {
         console.log(err);
