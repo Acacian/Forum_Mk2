@@ -4,6 +4,7 @@ import Image from '../../../components/Image/Image';
 import './SinglePost.css';
 import openSocket from 'socket.io-client';
 import Button from '../../../components/Button/Button';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 class SinglePost extends Component {
   state = {
