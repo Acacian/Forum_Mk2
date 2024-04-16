@@ -5,12 +5,15 @@ import './SinglePost.css';
 import openSocket from 'socket.io-client';
 import Button from '../../../components/Button/Button';
 
+// Bootstrap
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-
 import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import Form from 'react-bootstrap/Form';
+// npm library
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 class SinglePost extends Component {
   state = {
@@ -117,7 +120,9 @@ class SinglePost extends Component {
 
   // 댓글 등록하기
   makeComment = event => {
-    event.preventDefault();
+    if (event && event.preventDefault()){
+      event.preventDefault();
+    };
     const postId = this.props.match.params.postId;
     const comment = document.getElementById('comment').value;
     fetch('http://localhost:8080/comment/' + postId, {
@@ -143,6 +148,7 @@ class SinglePost extends Component {
 
 
   render() {
+    const notify = () => toast("댓글이 등록되었어요!");
     return (
       <Fragment>
         <section className="single-post">
@@ -166,10 +172,9 @@ class SinglePost extends Component {
             ) : (
               <p>실시간 댓글이 없어요!</p>
             )}
-              <form className="form">
+              <form className="form" onSubmit={this.makeComment}>
                 <div className="form-control">
                   <FloatingLabel htmlFor="comment">
-
                   </FloatingLabel>
                     <Form.Control
                       as="textarea"
@@ -178,7 +183,8 @@ class SinglePost extends Component {
                       placeholder="정글러들의 댓글을 실시간으로 남겨주세요!">
                     </Form.Control>
                 </div>
-                <Button mode="hover" design="focus" onClick= {this.makeComment}>댓글 등록하기</Button>
+                <Button mode="hover" design="focus" onClick={notify}>댓글 등록하기</Button>
+                  <ToastContainer />
               </form>
             </div>
           </Container>

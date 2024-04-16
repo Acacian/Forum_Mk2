@@ -31,7 +31,7 @@ exports.getComments = async (req, res, next) => {
 exports.createComment = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const error = new Error('Validation failed, entered data is incorrect.');
+    const error = new Error('세션 검사 중, 본인인증에 실패하였습니다.');
     error.statusCode = 422;
     throw error;
   }
